@@ -5,7 +5,7 @@ import { useGetTopCoinsQuery, type Coin } from '../../services/coinGeckoApi';
 import './style.css';
 
 function CoinTable() {
-  const { data, isLoading, isError, error } = useGetTopCoinsQuery();
+  const { data, isLoading, isError } = useGetTopCoinsQuery();
 
   const columns = useMemo<MRT_ColumnDef<Coin>[]>(
     () => [
