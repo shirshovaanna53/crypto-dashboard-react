@@ -1,21 +1,10 @@
-import { useGetTopCoinsQuery } from './services/coinGeckoApi';
+import CoinTable from './components/CoinTable/CoinTable';
 
 function App() {
-  const { data, isLoading, error } = useGetTopCoinsQuery();
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Something went wrong.</p>;
-
   return (
-    <div>
-      <h1>Top Coins</h1>
-      <ul>
-        {data?.map((coin) => (
-          <li key={coin.id}>
-            {coin.name}: ${coin.current_price}
-          </li>
-        ))}
-      </ul>
+    <div style={{ maxWidth: 900, margin: '40px auto', padding: '0 16px' }}>
+      <h1>Crypto Dashboard</h1>
+      <CoinTable />
     </div>
   );
 }
