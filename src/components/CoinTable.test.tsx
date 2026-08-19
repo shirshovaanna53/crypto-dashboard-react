@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { store } from '../store';
 import CoinTable from './CoinTable';
 import * as api from '../services/coinGeckoApi';
+import { ERROR_MESSAGES } from '../constants/messages';
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
@@ -60,6 +61,6 @@ describe('CoinTable', () => {
 
     renderWithProviders(<CoinTable />);
 
-    expect(screen.getByText(/error loading data/i)).toBeInTheDocument();
+    expect(screen.getByText(ERROR_MESSAGES.loadingCoins)).toBeInTheDocument();
   });
 });

@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { FLASH_DURATION_MS } from '../constants/theme';
 
 type FlashDirection = 'up' | 'down' | null;
 
@@ -12,7 +13,7 @@ export function usePriceFlash(currentPrice: number | undefined) {
     if (previousPrice.current !== undefined && currentPrice !== previousPrice.current) {
       setFlash(currentPrice > previousPrice.current ? 'up' : 'down');
 
-      const timeout = setTimeout(() => setFlash(null), 800);
+      const timeout = setTimeout(() => setFlash(null), FLASH_DURATION_MS);
       previousPrice.current = currentPrice;
 
       return () => clearTimeout(timeout);

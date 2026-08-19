@@ -2,6 +2,15 @@ import { Modal, Loader, Text, Center } from '@mantine/core';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useGetCoinPriceHistoryQuery } from '../services/coinGeckoApi';
 import './CoinPriceModal.css';
+import {
+  CHART_LINE_COLOR,
+  CHART_HEIGHT,
+  CHART_MARGIN,
+  CHART_STROKE_WIDTH,
+  FOCUS_SHADOW,
+  DATE_FORMAT_OPTIONS,
+} from '../constants/theme';
+import { ERROR_MESSAGES } from '../constants/messages';
 
 interface CoinPriceModalProps {
   coinId: string | null;
@@ -11,11 +20,11 @@ interface CoinPriceModalProps {
 
 function CoinPriceModal({ coinId, coinName, onClose }: CoinPriceModalProps) {
   const { data, isLoading, isError } = useGetCoinPriceHistoryQuery(coinId ?? '', {
-    skip: !coinId, // не делаем запрос, если модалка закрыта
+    skip: !coinId,
   });
 
   const chartData = data?.prices.map(([timestamp, price]) => ({
-    date: new Date(timestamp).toLocaleDateString('en-AU', { day: '2-digit', month: 'short' }),
+    date: new Date(timestamp).toLocaleDateString('en-AU', DATE_FORMAT_OPTIONS),
     price,
   }));
 
@@ -33,27 +42,27 @@ function CoinPriceModal({ coinId, coinName, onClose }: CoinPriceModalProps) {
         close: {
           '&:focus': {
             outline: 'none',
-            boxShadow: '0 0 0 3px rgba(47, 158, 68, 0.25)', // мягкая, полупрозрачная тень
+            boxShadow: FOCUS_SHADOW,
             borderRadius: '4px',
           },
         },
       }}
     >
       {isLoading && (
-        <Center h={300}>
+        <Center h={CHART_HEIGHT}>
           <Loader />
         </Center>
       )}
 
       {isError && (
-        <Center h={300}>
-          <Text c="red">Failed to load price history.</Text>
+        <Center h={CHART_HEIGHT}>
+          <Text c="red">{ERROR_MESSAGES.loadingPriceHistory}</Text>
         </Center>
       )}
 
       {chartData && (
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+        <ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+          <LineChart data={chartData} margin={CHART_MARGIN}>
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis domain={['auto', 'auto']} tick={{ fontSize: 12 }} />
             <Tooltip
@@ -65,7 +74,13 @@ function CoinPriceModal({ coinId, coinName, onClose }: CoinPriceModalProps) {
               wrapperStyle={{ zIndex: 1000, pointerEvents: 'none' }}
               allowEscapeViewBox={{ x: true, y: true }}
             />
-            <Line type="monotone" dataKey="price" stroke="#2f9e44" strokeWidth={2} dot={false} />
+            <Line
+              type="monotone"
+              dataKey="price"
+              stroke={CHART_LINE_COLOR}
+              strokeWidth={CHART_STROKE_WIDTH}
+              dot={false}
+            />
           </LineChart>
         </ResponsiveContainer>
       )}

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import FlashingPrice from './FlashingPrice';
+import { FLASH_COLORS } from '../constants/theme';
 
 function renderWithProvider(price: number) {
   return render(
@@ -38,7 +39,7 @@ describe('FlashingPrice', () => {
     );
 
     const priceElement = screen.getByText('$105');
-    expect(priceElement).toHaveStyle({ backgroundColor: 'rgba(34, 197, 94, 0.25)' });
+    expect(priceElement).toHaveStyle({ backgroundColor: FLASH_COLORS.up });
   });
 
   it('applies a red background when price decreases', () => {
@@ -55,6 +56,6 @@ describe('FlashingPrice', () => {
     );
 
     const priceElement = screen.getByText('$95');
-    expect(priceElement).toHaveStyle({ backgroundColor: 'rgba(239, 68, 68, 0.25)' });
+    expect(priceElement).toHaveStyle({ backgroundColor: FLASH_COLORS.down });
   });
 });

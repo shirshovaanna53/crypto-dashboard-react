@@ -4,11 +4,13 @@ import { Avatar, Text, Group } from '@mantine/core';
 import { useGetTopCoinsQuery, type Coin } from '../services/coinGeckoApi';
 import FlashingPrice from './FlashingPrice';
 import CoinPriceModal from './CoinPriceModal';
+import { POLLING_INTERVAL_MS, TEXT_COLORS } from '../constants/theme';
+import { ERROR_MESSAGES } from '../constants/messages';
 
 function CoinTable() {
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const { data, isLoading, isError } = useGetTopCoinsQuery(undefined, {
-    pollingInterval: selectedCoin ? 0 : 60000,
+    pollingInterval: selectedCoin ? 0 : POLLING_INTERVAL_MS,
   });
 
   const columns = useMemo<MRT_ColumnDef<Coin>[]>(
@@ -42,7 +44,7 @@ function CoinTable() {
           const value = cell.getValue<number>();
           const isPositive = value >= 0;
           return (
-            <Text c={isPositive ? 'teal' : 'red'} fw={500}>
+            <Text c={isPositive ? TEXT_COLORS.positive : TEXT_COLORS.negative} fw={500}>
               {isPositive ? '+' : ''}
               {value?.toFixed(2)}%
             </Text>
@@ -63,7 +65,7 @@ function CoinTable() {
     data: data ?? [],
     state: { isLoading, showAlertBanner: isError },
     mantineToolbarAlertBannerProps: isError
-      ? { color: 'red', children: 'Error loading data. Please try again later.' }
+      ? { color: 'red', children: ERROR_MESSAGES.loadingCoins }
       : undefined,
     enableGlobalFilter: true,
     enablePagination: true,
