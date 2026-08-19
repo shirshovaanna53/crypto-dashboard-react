@@ -1,13 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Avatar, Text, Group } from '@mantine/core';
 import { useGetTopCoinsQuery, type Coin } from '../../services/coinGeckoApi';
 import './style.css';
 import FlashingPrice from '../FlashingPrice';
+import CoinPriceModal from '../CoinPriceModal';
 
 function CoinTable() {
+  const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const { data, isLoading, isError } = useGetTopCoinsQuery(undefined, {
-    pollingInterval: 30000,
+    pollingInterval: selectedCoin ? 0 : 60000,
   });
 
   const columns = useMemo<MRT_ColumnDef<Coin>[]>(
@@ -60,10 +62,7 @@ function CoinTable() {
   const table = useMantineReactTable({
     columns,
     data: data ?? [],
-    state: {
-      isLoading,
-      showAlertBanner: isError,
-    },
+    state: { isLoading, showAlertBanner: isError },
     mantineToolbarAlertBannerProps: isError
       ? { color: 'red', children: 'Error loading data. Please try again later.' }
       : undefined,
@@ -71,10 +70,22 @@ function CoinTable() {
     enablePagination: true,
     enableColumnActions: false,
     enableDensityToggle: false,
-    mantineTableBodyRowProps: { style: { cursor: 'pointer' } },
+    mantineTableBodyRowProps: ({ row }) => ({
+      onClick: () => setSelectedCoin(row.original),
+      style: { cursor: 'pointer' },
+    }),
   });
 
-  return <MantineReactTable table={table} />;
+  return (
+    <>
+      <MantineReactTable table={table} />
+      <CoinPriceModal
+        coinId={selectedCoin?.id ?? null}
+        coinName={selectedCoin?.name ?? ''}
+        onClose={() => setSelectedCoin(null)}
+      />
+    </>
+  );
 }
 
 export default CoinTable;
