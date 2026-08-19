@@ -1,4 +1,4 @@
-import CoinTable from './components/CoinTable/CoinTable';
+import CoinTable from './components/CoinTable';
 
 function App() {
   return (

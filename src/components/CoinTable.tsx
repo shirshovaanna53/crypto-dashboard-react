@@ -1,10 +1,9 @@
 import { useMemo, useState } from 'react';
 import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Avatar, Text, Group } from '@mantine/core';
-import { useGetTopCoinsQuery, type Coin } from '../../services/coinGeckoApi';
-import './style.css';
-import FlashingPrice from '../FlashingPrice';
-import CoinPriceModal from '../CoinPriceModal';
+import { useGetTopCoinsQuery, type Coin } from '../services/coinGeckoApi';
+import FlashingPrice from './FlashingPrice';
+import CoinPriceModal from './CoinPriceModal';
 
 function CoinTable() {
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
@@ -24,7 +23,7 @@ function CoinTable() {
               <Text size="sm" fw={500}>
                 {row.original.name}
               </Text>
-              <Text size="xs" c="dimmed" className="symbol-text">
+              <Text size="xs" c="dimmed">
                 {row.original.symbol.toUpperCase()}
               </Text>
             </div>

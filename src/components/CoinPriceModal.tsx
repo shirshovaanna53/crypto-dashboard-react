@@ -1,6 +1,7 @@
 import { Modal, Loader, Text, Center } from '@mantine/core';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { useGetCoinPriceHistoryQuery } from '../services/coinGeckoApi';
+import './CoinPriceModal.css';
 
 interface CoinPriceModalProps {
   coinId: string | null;
@@ -19,7 +20,25 @@ function CoinPriceModal({ coinId, coinName, onClose }: CoinPriceModalProps) {
   }));
 
   return (
-    <Modal opened={coinId !== null} onClose={onClose} title={`${coinName} — Last 7 Days`} size="lg">
+    <Modal
+      opened={coinId !== null}
+      onClose={onClose}
+      title={
+        <Text size="xl" fw={700}>
+          {coinName} — Last 7 Days
+        </Text>
+      }
+      size="xl"
+      styles={{
+        close: {
+          '&:focus': {
+            outline: 'none',
+            boxShadow: '0 0 0 3px rgba(47, 158, 68, 0.25)', // мягкая, полупрозрачная тень
+            borderRadius: '4px',
+          },
+        },
+      }}
+    >
       {isLoading && (
         <Center h={300}>
           <Loader />
@@ -34,10 +53,18 @@ function CoinPriceModal({ coinId, coinName, onClose }: CoinPriceModalProps) {
 
       {chartData && (
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+          <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <XAxis dataKey="date" tick={{ fontSize: 12 }} />
             <YAxis domain={['auto', 'auto']} tick={{ fontSize: 12 }} />
-            <Tooltip formatter={(value) => (typeof value === 'number' ? `$${value.toLocaleString()}` : '')} />
+            <Tooltip
+              formatter={(value) =>
+                typeof value === 'number' || typeof value === 'string'
+                  ? `$${Number(value).toLocaleString()}`
+                  : ''
+              }
+              wrapperStyle={{ zIndex: 1000, pointerEvents: 'none' }}
+              allowEscapeViewBox={{ x: true, y: true }}
+            />
             <Line type="monotone" dataKey="price" stroke="#2f9e44" strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
