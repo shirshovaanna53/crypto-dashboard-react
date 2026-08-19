@@ -3,9 +3,12 @@ import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef } from 'man
 import { Avatar, Text, Group } from '@mantine/core';
 import { useGetTopCoinsQuery, type Coin } from '../../services/coinGeckoApi';
 import './style.css';
+import FlashingPrice from '../FlashingPrice';
 
 function CoinTable() {
-  const { data, isLoading, isError } = useGetTopCoinsQuery();
+  const { data, isLoading, isError } = useGetTopCoinsQuery(undefined, {
+    pollingInterval: 30000,
+  });
 
   const columns = useMemo<MRT_ColumnDef<Coin>[]>(
     () => [
@@ -29,7 +32,7 @@ function CoinTable() {
       {
         accessorKey: 'current_price',
         header: 'Price',
-        Cell: ({ cell }) => `$${cell.getValue<number>().toLocaleString()}`,
+        Cell: ({ row }) => <FlashingPrice price={row.original.current_price} />,
       },
       {
         accessorKey: 'price_change_percentage_24h',
@@ -64,7 +67,7 @@ function CoinTable() {
     mantineToolbarAlertBannerProps: isError
       ? { color: 'red', children: 'Error loading data. Please try again later.' }
       : undefined,
-    enableGlobalFilter: true, // это и есть встроенный поиск
+    enableGlobalFilter: true,
     enablePagination: true,
     enableColumnActions: false,
     enableDensityToggle: false,
