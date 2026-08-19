@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { MantineReactTable, useMantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Avatar, Text, Group } from '@mantine/core';
-import { useGetTopCoinsQuery, type Coin } from '../services/coinGeckoApi';
+import { useGetTopCoinsQuery } from '../services/coinGeckoApi';
+import type { Coin } from '../types/coin';
 import FlashingPrice from './FlashingPrice';
 import CoinPriceModal from './CoinPriceModal';
 import { POLLING_INTERVAL_MS, TEXT_COLORS } from '../constants/theme';

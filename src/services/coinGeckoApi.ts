@@ -1,20 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import type { Coin, PriceHistory } from '../types/coin';
 
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY;
-
-export interface Coin {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap: number;
-}
-
-export interface PriceHistory {
-  prices: [number, number][]; // [timestamp, price][]
-}
 
 export const coinGeckoApi = createApi({
   reducerPath: 'coinGeckoApi',
