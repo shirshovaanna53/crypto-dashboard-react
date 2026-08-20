@@ -5,13 +5,13 @@ import { useGetTopCoinsQuery } from '../services/coinGeckoApi';
 import type { Coin } from '../types/coin';
 import FlashingPrice from './FlashingPrice';
 import CoinPriceModal from './CoinPriceModal';
-import { POLLING_INTERVAL_MS, TEXT_COLORS } from '../constants/theme';
+import { /*POLLING_INTERVAL_MS, */ TEXT_COLORS } from '../constants/theme';
 import { ERROR_MESSAGES } from '../constants/messages';
 
 function CoinTable() {
   const [selectedCoin, setSelectedCoin] = useState<Coin | null>(null);
   const { data, isLoading, isError } = useGetTopCoinsQuery(undefined, {
-    pollingInterval: selectedCoin ? 0 : POLLING_INTERVAL_MS,
+    //pollingInterval: selectedCoin ? 0 : POLLING_INTERVAL_MS,
   });
 
   const columns = useMemo<MRT_ColumnDef<Coin>[]>(

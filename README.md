@@ -42,17 +42,18 @@ Built as a hands-on project to work with technologies used in production fronten
 ### Infrastructure & DevOps
 
 - **Deployed on AWS** — S3 for static hosting, CloudFront as CDN with HTTPS
+- **Serverless API proxy** — a Lambda function behind API Gateway proxies all CoinGecko requests, using a declarative route table (pattern → handler) instead of nested conditionals, so adding a new endpoint is a one-line addition rather than a code change to the routing logic
 - **CI/CD via GitHub Actions** — every push to `main` automatically builds the app, syncs it to S3, and invalidates the CloudFront cache
-- **Secrets management** — API keys and AWS credentials handled via GitHub Actions secrets, never committed to the repository
+- **Secrets management** — API keys and AWS credentials handled via GitHub Actions secrets and Lambda environment variables, never committed to the repository
 
 ### Security & Accessibility
 
 - Visible, non-default focus states on interactive elements (e.g. modal close button) for keyboard navigation
-- Awareness of client-side API key exposure inherent to static frontend deployments, with a documented plan to proxy requests through AWS Lambda + API Gateway to keep credentials server-side
+- **API key kept server-side** — initially the CoinGecko key was bundled into the frontend build (a common pitfall with static deployments, verified firsthand by inspecting the built bundle). This was resolved by introducing a Lambda + API Gateway proxy: the browser calls the proxy with no credentials attached, and the key lives only in the Lambda's environment variables, never reaching the client
 
 ## Tech Stack
 
-React · TypeScript · Redux Toolkit · RTK Query · Mantine · Recharts · Vitest · React Testing Library · Vite · GitHub Actions · AWS (S3, CloudFront)
+React · TypeScript · Redux Toolkit · RTK Query · Mantine · Recharts · Vitest · React Testing Library · Vite · GitHub Actions · AWS (S3, CloudFront, Lambda, API Gateway)
 
 ## Data Source
 
@@ -65,10 +66,10 @@ npm install --legacy-peer-deps
 npm run dev
 ```
 
-Requires a `.env` file with a CoinGecko Demo API key:
+Requires a `.env` file pointing to the Lambda proxy (see [Data Source](#data-source)):
 
 ```
-VITE_COINGECKO_API_KEY=your_key_here
+VITE_LAMBDA_API_URL=your_api_gateway_invoke_url
 ```
 
 ## Running Tests
