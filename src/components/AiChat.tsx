@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Paper, TextInput, Button, Text, Stack, Loader, Group } from '@mantine/core';
 import { useSendMessageMutation } from '../services/chatApi';
 import { TEXT_COLORS } from '../constants/theme';
-
-const SUGGESTED_QUESTIONS = [
-  'Compare BTC vs ETH',
-  "What's trending today?",
-  "Explain Bitcoin's 24h change",
-];
+import { SUGGESTED_QUESTIONS } from '../constants/questions';
 
 function AiChat() {
   const [input, setInput] = useState('');
   const [reply, setReply] = useState<string | null>(null);
   const [sendMessage, { isLoading, isError }] = useSendMessageMutation();
+
+  const scrollToBottom = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
 
   const handleSend = async (message: string) => {
     if (!message.trim()) return;
@@ -21,6 +23,12 @@ function AiChat() {
     setReply(result.reply);
     setInput('');
   };
+
+  useEffect(() => {
+    if (!isLoading) {
+      scrollToBottom();
+    }
+  }, [isLoading]);
 
   return (
     <Paper p="md" withBorder radius="md" mt="lg">

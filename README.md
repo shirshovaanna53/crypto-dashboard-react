@@ -15,6 +15,7 @@ Built as a hands-on project to work with technologies used in production fronten
 - **Live-updating price table** with polling-based real-time updates and a subtle flash animation highlighting actual price changes
 - **Search, sort, and pagination** across a table of the top 20 cryptocurrencies by market cap
 - **Price history chart** (7-day trend) displayed in a modal on row click, powered by Recharts
+- **AI market assistant** — a chat panel backed by Claude with tool use, answering questions with live market data rather than the model's static training knowledge
 - **Loading, empty, and error states** handled gracefully throughout the UI
 
 ## Technical Highlights
@@ -25,6 +26,15 @@ Built as a hands-on project to work with technologies used in production fronten
 - **Polling** tuned to match the underlying data source's actual refresh rate, avoiding wasted requests
 - **Request deduplication** via RTK Query's built-in caching — repeated interactions (e.g. reopening the same coin's chart) don't trigger redundant network calls
 - **Skip queries** on demand (`skip: !coinId`) so the price-history endpoint is only called when a modal is actually open, not pre-emptively
+
+### AI Agent (Tool Use)
+
+- **Claude-powered chat assistant** integrated as a Lambda route (`/ai/chat`), separate from the CoinGecko proxy but sharing the same modular Lambda codebase
+- **Tool use / function calling** — rather than answering from static training data, Claude is given two tools (`get_coin_data`, `get_price_history`) and autonomously decides which to call based on the user's question, then formulates a response grounded in the real result
+- **Agent loop with a hard iteration cap** — the tool-use exchange runs in a loop until Claude returns a final answer, bounded by `MAX_TOOL_ITERATIONS` to guard against runaway agent behavior rather than relying solely on the Lambda timeout as a safety net
+- **Token-conscious tool design** — `get_price_history` downsamples the API's hourly data points to one per day before returning them to the model, reducing both token cost and irrelevant noise in the tool result
+- **Scoped via system prompt** — the assistant is instructed to stay on crypto-market topics and redirect off-topic questions, rather than relying on hard-coded input filtering
+- **Guided + open input** — suggested-question chips steer users toward what the assistant can actually help with, alongside a free-text input for open-ended questions
 
 ### Code Quality & Maintainability
 
@@ -53,7 +63,7 @@ Built as a hands-on project to work with technologies used in production fronten
 
 ## Tech Stack
 
-React · TypeScript · Redux Toolkit · RTK Query · Mantine · Recharts · Vitest · React Testing Library · Vite · GitHub Actions · AWS (S3, CloudFront, Lambda, API Gateway)
+React · TypeScript · Redux Toolkit · RTK Query · Mantine · Recharts · Vitest · React Testing Library · Vite · GitHub Actions · AWS (S3, CloudFront, Lambda, API Gateway) · Anthropic API (Claude, tool use)
 
 ## Data Source
 
