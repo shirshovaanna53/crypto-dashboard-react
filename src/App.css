@@ -1,0 +1,19 @@
+.page {
+  max-width: 1280px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  align-items: start;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+  }
+}

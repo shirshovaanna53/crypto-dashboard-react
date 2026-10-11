@@ -1,11 +1,18 @@
 import CoinTable from './components/CoinTable';
 import AiChat from './components/AiChat';
+import './App.css';
+import AlertsPanel from './components/AlertsPanel';
 
 function App() {
   return (
-    <div style={{ maxWidth: 900, margin: '40px auto', padding: '0 16px' }}>
+    <div className="page">
       <h1>Crypto Dashboard</h1>
-      <CoinTable />
+
+      <div className="main-grid">
+        <CoinTable />
+        <AlertsPanel />
+      </div>
+
       <AiChat />
     </div>
   );
