@@ -1,17 +1,47 @@
-import { Tabs, Badge, Button, Group, ScrollArea, Center, Stack, Text } from '@mantine/core';
+import { Tabs, Badge, Button, Group, ScrollArea, Center, Stack, Text, Alert } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { AlertRulesList } from './AlertRulesList';
 import { CreateAlertModal } from './CreateAlertModal';
-//import type { AlertRule, CreateAlertInput } from '../types/alerts';
-import { useGetAlertsQuery } from '../services/alertsApi';
+import { getErrorMessage } from '../../utils/getErrorMessage';
+import {
+  useGetAlertsQuery,
+  useCreateAlertMutation,
+  useDeleteAlertMutation,
+  useRestartAlertMutation,
+} from '../services/alertsApi';
+import { useState } from 'react';
+import type { CreateAlertInput } from '../types/alerts';
 
 export function AlertsPanel() {
   const [createOpened, { open, close }] = useDisclosure(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const { data: rules = [], isLoading, isError, refetch } = useGetAlertsQuery();
+  const [createAlert] = useCreateAlertMutation();
+  const [deleteAlert] = useDeleteAlertMutation();
+  const [restartAlert] = useRestartAlertMutation();
 
-  // create/delete/restart are wired to the API tomorrow
-  const noop = () => {};
+  // Throws on failure on purpose: the modal catches it and shows the message
+  const handleCreate = async (input: CreateAlertInput) => {
+    await createAlert(input).unwrap();
+  };
+
+  // Runs a row action with a busy flag and error reporting
+  const runRowAction = async (id: string, action: () => Promise<unknown>) => {
+    setBusyId(id);
+    setActionError(null);
+    try {
+      await action();
+    } catch (err) {
+      setActionError(getErrorMessage(err));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const handleDelete = (id: string) => runRowAction(id, () => deleteAlert(id).unwrap());
+  const handleRestart = (id: string) => runRowAction(id, () => restartAlert(id).unwrap());
 
   return (
     <section>
@@ -36,10 +66,15 @@ export function AlertsPanel() {
         </Group>
 
         <Tabs.Panel value="feed" pt="md">
-          <ScrollArea h={600}>{/* AlertsFeed will be added in stage 2 */}</ScrollArea>
+          <ScrollArea h={600}>{/* AlertsFeed comes in stage 2 */}</ScrollArea>
         </Tabs.Panel>
 
         <Tabs.Panel value="rules" pt="md">
+          {actionError && (
+            <Alert color="red" mb="sm" withCloseButton onClose={() => setActionError(null)}>
+              {actionError}
+            </Alert>
+          )}
           <ScrollArea h={600}>
             {isError ? (
               <Center py="xl">
@@ -53,13 +88,19 @@ export function AlertsPanel() {
                 </Stack>
               </Center>
             ) : (
-              <AlertRulesList rules={rules} loading={isLoading} onDelete={noop} onRestart={noop} />
+              <AlertRulesList
+                rules={rules}
+                loading={isLoading}
+                busyId={busyId}
+                onDelete={handleDelete}
+                onRestart={handleRestart}
+              />
             )}
           </ScrollArea>
         </Tabs.Panel>
       </Tabs>
 
-      <CreateAlertModal opened={createOpened} onClose={close} onCreate={noop} />
+      <CreateAlertModal opened={createOpened} onClose={close} onCreate={handleCreate} />
     </section>
   );
 }

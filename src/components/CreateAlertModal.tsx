@@ -16,7 +16,7 @@ import { useGetTopCoinsQuery } from '../services/coinGeckoApi';
 type Props = {
   opened: boolean;
   onClose: () => void;
-  onCreate: (input: CreateAlertInput) => void;
+  onCreate: (input: CreateAlertInput) => Promise<void>;
   defaultCoinId?: string;
 };
 
@@ -26,6 +26,8 @@ export function CreateAlertModal({ opened, onClose, onCreate, defaultCoinId }: P
   const [coinId, setCoinId] = useState<string | null>(defaultCoinId ?? null);
   const [direction, setDirection] = useState<'above' | 'below'>('below');
   const [price, setPrice] = useState<number | ''>('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const selectData = useMemo(
     () =>
@@ -51,6 +53,7 @@ export function CreateAlertModal({ opened, onClose, onCreate, defaultCoinId }: P
     setCoinId(defaultCoinId ?? null);
     setDirection('below');
     setPrice('');
+    setSubmitError(null);
   };
 
   const handleClose = () => {
@@ -58,15 +61,23 @@ export function CreateAlertModal({ opened, onClose, onCreate, defaultCoinId }: P
     onClose();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isValid || !selectedCoin || (price as unknown) === '') return;
-    onCreate({
-      coinId: selectedCoin.id,
-      symbol: selectedCoin.symbol,
-      type: 'PRICE_THRESHOLD',
-      params: { direction, targetPrice: price },
-    });
-    handleClose();
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      await onCreate({
+        coinId: selectedCoin.id,
+        symbol: selectedCoin.symbol,
+        type: 'PRICE_THRESHOLD',
+        params: { direction, targetPrice: price },
+      });
+      handleClose();
+    } catch (err) {
+      setSubmitError(getErrorMessage(err)); // e.g. "Rule limit reached (20)"
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -127,15 +138,24 @@ export function CreateAlertModal({ opened, onClose, onCreate, defaultCoinId }: P
           </Text>
         )}
 
+        {submitError && (
+          <Text size="xs" c="red">
+            {submitError}
+          </Text>
+        )}
+
         <Group position="right" mt="sm">
-          <Button variant="default" onClick={handleClose}>
+          <Button variant="default" onClick={handleClose} disabled={submitting}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!isValid}>
+          <Button onClick={handleSubmit} disabled={!isValid} loading={submitting}>
             Save
           </Button>
         </Group>
       </Stack>
     </Modal>
   );
+}
+function getErrorMessage(err: unknown): import('react').SetStateAction<string | null> {
+  throw new Error('Function not implemented.');
 }

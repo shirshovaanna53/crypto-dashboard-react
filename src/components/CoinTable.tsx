@@ -68,7 +68,8 @@ function CoinTable() {
     mantineToolbarAlertBannerProps: isError
       ? { color: 'red', children: ERROR_MESSAGES.loadingCoins }
       : undefined,
-    enableGlobalFilter: true,
+    //enableGlobalFilter: true,
+    enableTopToolbar: false,
     enablePagination: true,
     enableColumnActions: false,
     enableDensityToggle: false,
@@ -76,6 +77,16 @@ function CoinTable() {
       onClick: () => setSelectedCoin(row.original),
       style: { cursor: 'pointer' },
     }),
+    mantineTableBodyCellProps: {
+      style: {
+        padding: '4px 8px',
+      },
+    },
+    mantineTableHeadCellProps: {
+      style: {
+        padding: '8px 16px',
+      },
+    },
   });
 
   return (

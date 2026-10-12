@@ -4,6 +4,7 @@ import type { AlertRule } from '../types/alerts';
 type Props = {
   rules: AlertRule[];
   loading?: boolean;
+  busyId?: string | null;
   onDelete: (id: string) => void;
   onRestart: (id: string) => void;
 };
@@ -13,7 +14,7 @@ function describe(rule: AlertRule) {
   return `${rule.symbol.toUpperCase()} ${sign} $${rule.params.targetPrice.toLocaleString('en-US')}`;
 }
 
-export function AlertRulesList({ rules, loading, onDelete, onRestart }: Props) {
+export function AlertRulesList({ rules, loading, busyId, onDelete, onRestart }: Props) {
   if (loading) {
     return (
       <Center py="xl">
@@ -53,11 +54,23 @@ export function AlertRulesList({ rules, loading, onDelete, onRestart }: Props) {
 
           <Group position="right" spacing="xs" mt="xs">
             {rule.status === 'triggered' && (
-              <Button size="xs" variant="light" onClick={() => onRestart(rule.id)}>
+              <Button
+                size="xs"
+                variant="light"
+                loading={busyId === rule.id}
+                disabled={busyId === rule.id}
+                onClick={() => onRestart(rule.id)}
+              >
                 Restart
               </Button>
             )}
-            <Button size="xs" variant="subtle" color="red" onClick={() => onDelete(rule.id)}>
+            <Button
+              size="xs"
+              variant="subtle"
+              color="red"
+              disabled={busyId === rule.id}
+              onClick={() => onDelete(rule.id)}
+            >
               Delete
             </Button>
           </Group>
