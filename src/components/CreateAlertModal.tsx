@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import type { CreateAlertInput } from '../types/alerts';
 import { useGetTopCoinsQuery } from '../services/coinGeckoApi';
+import { getErrorMessage } from '../../utils/getErrorMessage';
 
 type Props = {
   opened: boolean;
@@ -155,7 +156,4 @@ export function CreateAlertModal({ opened, onClose, onCreate, defaultCoinId }: P
       </Stack>
     </Modal>
   );
-}
-function getErrorMessage(err: unknown): import('react').SetStateAction<string | null> {
-  throw new Error('Function not implemented.');
 }
