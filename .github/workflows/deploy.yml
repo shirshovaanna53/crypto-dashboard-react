@@ -25,6 +25,7 @@ jobs:
         run: npm run build
         env:
           VITE_LAMBDA_API_URL: ${{ secrets.VITE_LAMBDA_API_URL }}
+          VITE_DEMO_USER_ID: '8ccac236-c734-41e1-bb95-5e9a63f7f59c'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
