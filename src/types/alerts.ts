@@ -15,4 +15,14 @@ export type AlertRule = {
   triggeredPrice?: number;
 };
 
+export type FeedItem = {
+  alertId: string;
+  coinId: string;
+  symbol: string;
+  type: 'PRICE_THRESHOLD' | 'PERCENT_CHANGE';
+  params: { direction: 'above' | 'below'; targetPrice: number };
+  triggeredAt: string; // ISO string
+  triggeredPrice: number;
+};
+
 export type CreateAlertInput = Pick<AlertRule, 'coinId' | 'symbol' | 'type' | 'params'>;

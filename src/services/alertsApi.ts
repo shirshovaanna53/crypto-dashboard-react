@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getUserId } from '../../utils/userId';
-import type { AlertRule, CreateAlertInput } from '../types/alerts';
+import type { AlertRule, CreateAlertInput, FeedItem } from '../types/alerts';
 
 const LAMBDA_BASE_URL = import.meta.env.VITE_LAMBDA_API_URL;
 
@@ -14,7 +14,7 @@ export const alertsApi = createApi({
     },
   }),
 
-  tagTypes: ['Alert'],
+  tagTypes: ['Alert', 'Feed'],
   endpoints: (builder) => ({
     getAlerts: builder.query<AlertRule[], void>({
       query: () => '/alerts',
@@ -36,6 +36,19 @@ export const alertsApi = createApi({
       // Also refresh on error: a 409 means the rule is no longer "triggered"
       invalidatesTags: () => ['Alert'],
     }),
+    getFeed: builder.query<FeedItem[], void>({
+      query: () => '/alerts/feed',
+      providesTags: ['Feed'],
+    }),
+
+    checkAlerts: builder.mutation<
+      { checked: boolean; rules?: number; coins?: number; triggered?: number },
+      void
+    >({
+      query: () => ({ url: '/alerts/check', method: 'POST' }),
+      // Refresh lists only if something actually triggered
+      invalidatesTags: (result) => (result?.checked && result.triggered ? ['Alert', 'Feed'] : []),
+    }),
   }),
 });
 
@@ -44,4 +57,6 @@ export const {
   useCreateAlertMutation,
   useDeleteAlertMutation,
   useRestartAlertMutation,
+  useGetFeedQuery,
+  useCheckAlertsMutation,
 } = alertsApi;

@@ -84,8 +84,13 @@ function CoinTable() {
     },
     mantineTableHeadCellProps: {
       style: {
-        padding: '8px 16px',
+        padding: '16px 16px',
+        fontSize: '16px',
+        fontWeight: 'bold',
       },
+    },
+    mantinePaginationProps: {
+      showRowsPerPage: false,
     },
   });
 

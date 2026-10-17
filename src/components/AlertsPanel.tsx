@@ -1,4 +1,15 @@
-import { Tabs, Badge, Button, Group, ScrollArea, Center, Stack, Text, Alert } from '@mantine/core';
+import {
+  Tabs,
+  Badge,
+  Button,
+  Group,
+  ScrollArea,
+  Center,
+  Stack,
+  Text,
+  Alert,
+  Loader,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { AlertRulesList } from './AlertRulesList';
 import { CreateAlertModal } from './CreateAlertModal';
@@ -8,9 +19,12 @@ import {
   useCreateAlertMutation,
   useDeleteAlertMutation,
   useRestartAlertMutation,
+  useGetFeedQuery,
+  useCheckAlertsMutation,
 } from '../services/alertsApi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CreateAlertInput } from '../types/alerts';
+import { AlertsFeed } from './AlertsFeed';
 
 export function AlertsPanel() {
   const [createOpened, { open, close }] = useDisclosure(false);
@@ -21,6 +35,15 @@ export function AlertsPanel() {
   const [createAlert] = useCreateAlertMutation();
   const [deleteAlert] = useDeleteAlertMutation();
   const [restartAlert] = useRestartAlertMutation();
+  const { data: feed = [], isLoading: feedLoading } = useGetFeedQuery();
+  const [checkAlerts, { isLoading: checking }] = useCheckAlertsMutation();
+
+  // Check prices once when the panel mounts
+  useEffect(() => {
+    checkAlerts().catch(() => {
+      // Silent: the lists below still show the last known data
+    });
+  }, [checkAlerts]);
 
   // Throws on failure on purpose: the modal catches it and shows the message
   const handleCreate = async (input: CreateAlertInput) => {
@@ -51,9 +74,11 @@ export function AlertsPanel() {
             <Tabs.Tab
               value="feed"
               rightSection={
-                <Badge size="xs" circle>
-                  0
-                </Badge>
+                feed.length > 0 ? (
+                  <Badge size="xs" circle>
+                    {feed.length}
+                  </Badge>
+                ) : null
               }
             >
               Feed
@@ -66,7 +91,9 @@ export function AlertsPanel() {
         </Group>
 
         <Tabs.Panel value="feed" pt="md">
-          <ScrollArea h={600}>{/* AlertsFeed comes in stage 2 */}</ScrollArea>
+          <ScrollArea h={540}>
+            <AlertsFeed items={feed} loading={feedLoading} />
+          </ScrollArea>
         </Tabs.Panel>
 
         <Tabs.Panel value="rules" pt="md">
@@ -75,7 +102,7 @@ export function AlertsPanel() {
               {actionError}
             </Alert>
           )}
-          <ScrollArea h={600}>
+          <ScrollArea h={540}>
             {isError ? (
               <Center py="xl">
                 <Stack align="center" spacing="xs">
@@ -98,6 +125,7 @@ export function AlertsPanel() {
             )}
           </ScrollArea>
         </Tabs.Panel>
+        {checking && <Loader size="xs" />}
       </Tabs>
 
       <CreateAlertModal opened={createOpened} onClose={close} onCreate={handleCreate} />
